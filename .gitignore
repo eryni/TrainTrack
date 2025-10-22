@@ -1,0 +1,32 @@
+# Angular
+/TrainTrackAngular/node_modules/
+/TrainTrackAngular/dist/
+/TrainTrackAngular/.angular/
+/TrainTrackAngular/tmp/
+/TrainTrackAngular/out-tsc/
+/TrainTrackAngular/.env
+
+# Spring Boot
+/TrainTrackAPI/target/
+/TrainTrackAPI/.mvn/
+/TrainTrackAPI/mvnw
+/TrainTrackAPI/mvnw.cmd
+/TrainTrackAPI/.env
+/TrainTrackAPI/application-local.properties
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+Thumbs.db
