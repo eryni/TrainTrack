@@ -1,0 +1,266 @@
+.landing-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+  font-size: 24px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logo-icon {
+  color: #e94560;
+}
+
+.logo-train {
+  color: #bb86fc;
+  margin: 0 2px;
+}
+
+.logo-text {
+  color: #fff;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.welcome-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  margin-right: 10px;
+}
+
+.btn-logout {
+  padding: 10px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  background: rgba(233, 69, 96, 0.2);
+  border-color: #e94560;
+  transform: translateY(-2px);
+}
+
+.btn-logout:active {
+  transform: translateY(0);
+}
+
+.auth-links {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.link-primary {
+  color: #bb86fc;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+  padding: 10px 15px;
+}
+
+.link-primary:hover {
+  color: #e94560;
+}
+
+.btn-signup {
+  padding: 10px 24px;
+  background: linear-gradient(90deg, #e94560 0%, #bb86fc 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.btn-signup:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(233, 69, 96, 0.4);
+}
+
+.btn-signup:active {
+  transform: translateY(0);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.content h1 {
+  color: #fff;
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #e94560 0%, #bb86fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.content p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 20px;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1024px) {
+  .header {
+    padding: 20px 30px;
+  }
+
+  .content h1 {
+    font-size: 40px;
+  }
+
+  .content p {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 15px 20px;
+  }
+
+  .logo {
+    font-size: 20px;
+  }
+
+  .header-actions {
+    gap: 10px;
+  }
+
+  .welcome-text {
+    font-size: 13px;
+    margin-right: 5px;
+  }
+
+  .btn-logout {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .link-primary {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .btn-signup {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .content {
+    min-height: calc(100vh - 70px);
+    padding: 30px 15px;
+  }
+
+  .content h1 {
+    font-size: 32px;
+  }
+
+  .content p {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 12px 15px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  .welcome-text {
+    display: none;
+  }
+
+  .btn-logout {
+    padding: 7px 14px;
+    font-size: 12px;
+  }
+
+  .link-primary {
+    font-size: 12px;
+    padding: 7px 8px;
+  }
+
+  .btn-signup {
+    padding: 7px 14px;
+    font-size: 12px;
+  }
+
+  .content h1 {
+    font-size: 28px;
+  }
+
+  .content p {
+    font-size: 15px;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .header {
+    padding: 10px 12px;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .auth-links {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .content h1 {
+    font-size: 24px;
+  }
+
+  .content p {
+    font-size: 14px;
+  }
+}

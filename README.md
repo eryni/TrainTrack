@@ -51,7 +51,7 @@ The system uses 9 interconnected tables:
 ## Getting Started
 
 ### Prerequisites
-- Node.js 16+ and npm
+- Node.js 20+ and npm
 - Angular CLI (`npm install -g @angular/cli`)
 - Java JDK 17+
 - Maven 3.6+
@@ -125,7 +125,7 @@ spring.jpa.hibernate.ddl-auto=update
 View the Figma prototype: [TrainTrack Prototype](https://www.figma.com/proto/VIqFEhaQCSqQfeV23OPrec/Protoype-Figma---ITS120-L?node-id=1-17&t=WYXNk7q0mj4kwa0r-1&starting-point-node-id=1%3A17&scaling=contain&content-scaling=fixed)
 
 ### Key Pages
-- Sign-in Page
+- Sign-up Page
 - Email Verification Page
 - Login Page
 - Forgot Password Page
