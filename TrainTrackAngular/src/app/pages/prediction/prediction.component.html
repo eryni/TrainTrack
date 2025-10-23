@@ -1,0 +1,79 @@
+<div class="prediction-container">
+  <!-- HEADER -->
+  <header class="top-bar">
+    <h1 class="logo">train<span>Track</span></h1>
+    <p class="welcome">Welcome back, <b>User00</b>!</p>
+  </header>
+
+  <main class="main-grid">
+    <!-- LEFT PANEL -->
+    <section class="panel left-panel">
+      <div class="card">
+        <h3>Select Station</h3>
+        <select [(ngModel)]="stationId">
+  <option *ngIf="stations.length === 0" disabled>Loading stations...</option>
+  <option *ngFor="let s of stations" [ngValue]="s.id">
+    {{ s.name }}
+  </option>
+</select>
+
+        <h3>Select Time</h3>
+        <select [(ngModel)]="selectedHour">
+          <option *ngFor="let t of times" [value]="t.value">
+            {{ t.label }}
+          </option>
+        </select>
+
+        <button class="apply" (click)="fetchPrediction()" [disabled]="!stationId || loading">
+          {{ loading ? 'Predicting...' : 'Predict' }}
+        </button>
+      </div>
+    </section>
+
+<!-- CENTER PANEL -->
+<section class="panel center-panel">
+  <!-- Prediction Result Card -->
+  <div *ngIf="prediction" class="congestion-card">
+    <div class="circle" [ngClass]="prediction.congestionLevel.toLowerCase()">
+      <div class="percent">{{ prediction.predictedRidership }}</div>
+      <div class="label">{{ prediction.congestionLevel }}</div>
+    </div>
+
+    <div class="details">
+      <p><b>@ {{ getStationName(stationId || 0) }}</b></p>
+      <p>Predicted for: {{ getSelectedHourLabel(selectedHour) }}</p>
+      <p>Confidence: {{ prediction.confidence | percent:'1.0-0' }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">Loading prediction...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <!-- 🔽 Add these placeholders (styled by your existing CSS) -->
+  <div class="charts-placeholder">
+    <div class="chart-box">[ Donut Chart Placeholder ]</div>
+    <div class="chart-box">[ Bar Chart Placeholder ]</div>
+    <div class="chart-box">[ Map Placeholder ]</div>
+  </div>
+</section>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button routerLink="/prediction" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="icon material-icons">bar_chart</i>
+      <span>Prediction</span>
+    </button>
+
+    <button routerLink="/dashboard" routerLinkActive="active">
+      <i class="icon material-icons">grid_view</i>
+      <span>Dashboard</span>
+    </button>
+
+    <button routerLink="/report" routerLinkActive="active">
+      <i class="icon material-icons">report_problem</i>
+      <span>Report</span>
+    </button>
+  </nav>
+</div>
