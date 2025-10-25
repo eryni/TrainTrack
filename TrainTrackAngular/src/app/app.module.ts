@@ -12,7 +12,7 @@ import { VerifyEmailComponent } from './pages/verify-email/verify-email.componen
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { PredictionComponent } from './pages/prediction/prediction.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { ReportComponent } from './pages/report/report.component';
+import { ReportProblemComponent } from './pages/report-problem/report-problem.component';
 import { AuthService } from './services/auth.service';
 import { AuthGuard } from './guards/auth.guard';
 
@@ -26,7 +26,7 @@ import { AuthGuard } from './guards/auth.guard';
     ResetPasswordComponent,
     PredictionComponent,
     DashboardComponent,
-    ReportComponent
+    ReportProblemComponent
   ],
   imports: [
     BrowserModule,

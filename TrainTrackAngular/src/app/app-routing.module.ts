@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { PredictionComponent } from './pages/prediction/prediction.component';
+import { ReportProblemComponent } from './pages/report-problem/report-problem.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ReportComponent } from './pages/report/report.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
@@ -19,7 +20,7 @@ const routes: Routes = [
   { path: '', component: PredictionComponent, canActivate: [AuthGuard] },
   { path: 'prediction', component: PredictionComponent, canActivate: [AuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'report', component: ReportComponent, canActivate: [AuthGuard] },
+  { path: 'report', component: ReportProblemComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 

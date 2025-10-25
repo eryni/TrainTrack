@@ -1,0 +1,140 @@
+/* Base Layout */
+.report-page {
+  background-color: #171624;
+  color: #d9d9d9;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  max-width: calc(100% - 150px); /* total horizontal margin */
+  margin: 0 auto;                /* centers the block */
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.logo-text {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #c7677c;
+}
+
+.logo-text span {
+  color: #704ec4;
+}
+
+.welcome-text {
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+/* User Section */
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.avatar-placeholder {
+  width: 65px;
+  height: 65px;
+  background-color: #c7677c;
+  border-radius: 50%;
+}
+
+.user-info h2 {
+  margin: 0;
+  font-weight: 600;
+  color: #d9d9d9;
+}
+
+.user-info p {
+  margin: 0;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: rgba(217, 217, 217, 0.75);
+}
+
+/* Report Form */
+.report-form {
+  flex-grow: 1;
+}
+
+.report-form h3 {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #d9d9d9;
+}
+
+/* Input fields in separate boxes */
+.field {
+  margin-bottom: 1rem;
+}
+
+.input-title,
+.input-body {
+  width: 100%;
+  border: 1px solid #d9d9d9;
+  background-color: rgba(217, 217, 217, 0.05);
+  border-radius: 10.5px;
+  color: rgba(217, 217, 217, 0.75);
+  padding: 0.8rem;
+  font-size: 1rem;
+  color: rgba(217, 217, 217, 0.75);
+  box-sizing: border-box;
+}
+
+.input-body {
+  height: 180px;
+  resize: none;
+}
+
+/* Button */
+.btn-send {
+  float: right;
+  background: linear-gradient(90deg, #c7677c, #704ec4);
+  border: none;
+  border-radius: 10.5px;
+  color: white;
+  padding: 0.7rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-send:hover {
+  opacity: 0.9;
+}
+
+/* Footer */
+.footer {
+  margin-top: 3rem;
+  display: flex;
+  justify-content: space-around;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(217, 217, 217, 0.3);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.9rem;
+  color: rgba(217, 217, 217, 0.75);
+}
+
+.nav-item.active {
+  color: #c7677c;
+}
+
+.icon {
+  font-size: 1.3rem;
+  margin-bottom: 0.2rem;
+}
