@@ -22,7 +22,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("echiketto06@gmail.com");
+            helper.setFrom("traintrackph@gmail.com");
             helper.setTo(toEmail);
             helper.setSubject("Verify Your TrainTrack PH Account");
 
@@ -43,7 +43,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("echiketto06@gmail.com");
+            helper.setFrom("traintrackph@gmail.com");
             helper.setTo(toEmail);
             helper.setSubject("Reset Your TrainTrack PH Password");
 

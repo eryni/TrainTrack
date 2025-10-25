@@ -9,10 +9,12 @@ import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { VerifyEmailComponent } from './pages/verify-email/verify-email.component';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { PredictionComponent } from './pages/prediction/prediction.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { ReportComponent } from './pages/report/report.component';
 import { AuthService } from './services/auth.service';
 import { AuthGuard } from './guards/auth.guard';
-import { LandingPageComponent } from './components/landing-page/landing-page.component';
-import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 
 @NgModule({
   declarations: [
@@ -21,8 +23,10 @@ import { ResetPasswordComponent } from './pages/reset-password/reset-password.co
     RegisterComponent,
     ForgotPasswordComponent,
     VerifyEmailComponent,
-    LandingPageComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    PredictionComponent,
+    DashboardComponent,
+    ReportComponent
   ],
   imports: [
     BrowserModule,

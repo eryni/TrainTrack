@@ -1,0 +1,102 @@
+<div class="prediction-container">
+  <!-- HEADER -->
+  <header class="top-bar">
+    <div class="logo">
+      <span class="logo-icon">tr</span>
+      <span class="logo-train">▲</span>
+      <span class="logo-text">inTrack</span>
+    </div>
+    
+    <div class="header-actions">
+      <span class="welcome-text" *ngIf="currentUser">
+        Welcome, {{ currentUser.firstName }}!
+      </span>
+      <button class="btn-logout" (click)="logout()" *ngIf="currentUser">
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <!-- LEFT PANEL -->
+    <section class="panel left-panel">
+      <div class="card">
+        <h3>Select Station</h3>
+        <div class="form-group">
+          <select [(ngModel)]="stationId">
+            <option *ngIf="stations.length === 0" disabled>Loading stations...</option>
+            <option *ngFor="let s of stations" [ngValue]="s.id">
+              {{ s.name }}
+            </option>
+          </select>
+        </div>
+
+        <h3>Select Time</h3>
+        <div class="form-group">
+          <select [(ngModel)]="selectedHour">
+            <option *ngFor="let t of times" [value]="t.value">
+              {{ t.label }}
+            </option>
+          </select>
+        </div>
+
+        <button class="btn-predict" (click)="fetchPrediction()" [disabled]="!stationId || loading">
+          {{ loading ? 'Predicting...' : 'Predict Congestion' }}
+        </button>
+      </div>
+    </section>
+
+    <!-- CENTER PANEL -->
+    <section class="panel center-panel">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading">
+        <p>🔄 Analyzing ridership data...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !loading" class="error">
+        <p>{{ error }}</p>
+      </div>
+
+      <!-- Prediction Result Card -->
+      <div *ngIf="prediction && !loading && !error" class="congestion-card">
+        <div class="circle" [ngClass]="getCongestionClass(prediction.congestionLevel)">
+          <div class="percent">{{ prediction.predictedRidership }}</div>
+          <div class="label">{{ prediction.congestionLevel }}</div>
+        </div>
+
+        <div class="details">
+          <p class="station-name">{{ getStationName(stationId || 0) }}</p>
+          <p><b>Predicted Time:</b> {{ getSelectedHourLabel(selectedHour) }}</p>
+          <p><b>Confidence:</b> {{ prediction.confidence | percent:'1.0-0' }}</p>
+        </div>
+      </div>
+
+      <!-- Chart Placeholders -->
+      <div class="charts-placeholder">
+        <div class="chart-box">[ Historical Trends ]</div>
+        <div class="chart-box">[ Peak Hours Analysis ]</div>
+        <div class="chart-box">[ Station Comparison ]</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button routerLink="/prediction" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="icon material-icons">bar_chart</i>
+      <span>Prediction</span>
+    </button>
+
+    <button routerLink="/dashboard" routerLinkActive="active">
+      <i class="icon material-icons">grid_view</i>
+      <span>Dashboard</span>
+    </button>
+
+    <button routerLink="/report" routerLinkActive="active">
+      <i class="icon material-icons">report_problem</i>
+      <span>Report</span>
+    </button>
+  </nav>
+</div>
