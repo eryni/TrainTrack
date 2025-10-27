@@ -19,33 +19,48 @@
 
   <!-- MAIN CONTENT -->
   <main class="main-content">
-    <!-- LEFT PANEL -->
     <section class="panel left-panel">
-      <div class="card">
-        <h3>Select Station</h3>
-        <div class="form-group">
-          <select [(ngModel)]="stationId">
-            <option *ngIf="stations.length === 0" disabled>Loading stations...</option>
-            <option *ngFor="let s of stations" [ngValue]="s.id">
-              {{ s.name }}
-            </option>
-          </select>
-        </div>
+  <!-- Existing Prediction Card -->
+  <div class="card">
+    <h3>Select Station</h3>
+    <div class="form-group">
+      <select [(ngModel)]="stationId">
+        <option *ngIf="stations.length === 0" disabled>Loading stations...</option>
+        <option *ngFor="let s of stations" [ngValue]="s.id">
+          {{ s.name }}
+        </option>
+      </select>
+    </div>
 
-        <h3>Select Time</h3>
-        <div class="form-group">
-          <select [(ngModel)]="selectedHour">
-            <option *ngFor="let t of times" [value]="t.value">
-              {{ t.label }}
-            </option>
-          </select>
-        </div>
+    <h3>Select Time</h3>
+    <div class="form-group">
+      <select [(ngModel)]="selectedHour">
+        <option *ngFor="let t of times" [value]="t.value">
+          {{ t.label }}
+        </option>
+      </select>
+    </div>
 
-        <button class="btn-predict" (click)="fetchPrediction()" [disabled]="!stationId || loading">
-          {{ loading ? 'Predicting...' : 'Predict Congestion' }}
-        </button>
-      </div>
-    </section>
+    <button class="btn-predict" (click)="fetchPrediction()" [disabled]="!stationId || loading">
+      {{ loading ? 'Predicting...' : 'Predict Congestion' }}
+    </button>
+  </div>
+
+  <!-- ✅ NEW: Save Selection Box (identical style) -->
+  <div class="card">
+    <h3>Save Selection</h3>
+    <p>Save your selected station and time for later.</p>
+
+    <button class="btn-predict" (click)="saveSelection()" [disabled]="!stationId || !selectedHour">
+      💾 Save Station & Time
+    </button>
+
+    <!-- Optional feedback message -->
+    <div class="saved-message" *ngIf="saveMessage">
+      {{ saveMessage }}
+    </div>
+  </div>
+</section>
 
     <!-- CENTER PANEL -->
     <section class="panel center-panel">

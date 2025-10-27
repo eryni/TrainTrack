@@ -6,7 +6,7 @@
       <span class="logo-train">▲</span>
       <span class="logo-text">inTrack</span>
     </div>
-    
+
     <div class="header-actions">
       <span class="welcome-text" *ngIf="currentUser">
         Welcome, {{ currentUser.firstName }}!
@@ -16,12 +16,12 @@
       </button>
     </div>
   </header>
-  
-  <!-- User Info -->
+
+  <!-- USER INFO -->
   <section class="user-section">
     <div class="avatar-placeholder"></div>
     <div class="user-info">
-      <h2>User00</h2>
+      <h2>{{ currentUser?.firstName || 'User00' }}</h2>
       <p><em>“User tagline for fun”</em></p>
     </div>
     <div class="datetime">
@@ -34,6 +34,8 @@
   <main class="main-content">
     <section class="panel center-panel">
       <div class="dashboard-content">
+
+        <!-- ACCOUNT PANEL -->
         <div class="panel account-panel">
           <h3>Account</h3>
           <div class="row">
@@ -51,30 +53,64 @@
           <textarea placeholder="User tagline for fun"></textarea>
         </div>
 
-        <div class="panel schedule-panel">
+        <!-- SAVED SCHEDULES -->
+        <div class="panel schedule-panel" *ngIf="savedSchedules.length > 0">
           <h3>Saved Schedules</h3>
           <ul>
-            <li>MRT3 Guadalupe 10-02-2025 10:00AM</li>
-            <li class="alert">MRT3 Araneta CC 10-02-2025 10:00AM</li>
-            <li>MRT3 Santolan A. 10-02-2025 10:00AM</li>
+            <li
+              *ngFor="let s of savedSchedules"
+              [ngClass]="{
+                'alert': s.congestionLevel === 'Very Heavy' || s.congestionLevel === 'Heavy'
+              }"
+              (click)="viewPredictionForSaved(s)"
+            >
+              {{ s.station?.name || 'Unknown Station' }} — {{ getSelectedHourLabel(s.timestamp) }}
+            </li>
           </ul>
 
-          <div class="status-card">
-            <div class="circle">60%</div>
-            <div class="status-text">
-              <p class="bad">BAD TIME TO TRAVEL</p>
-              <p class="sub">RUSH HOUR</p>
-            </div>
-          </div>
+          <!-- 🟣 Dashboard Prediction Card (Ridership Inside Circle, Time Fixed) -->
+<div *ngIf="activePrediction && !loading && !errorMessage" class="modern-prediction">
+  <!-- LEFT: Ridership Circle -->
+  <div class="circle" [ngClass]="getCongestionClass(activePrediction.congestionLevel)">
+    <div class="percent">
+      {{ activePrediction.predictedRidership | number }}
+    </div>
+    <div class="label">{{ activePrediction.congestionLevel }}</div>
+  </div>
 
-          <div class="density">
-            <p><strong>Lowest Passenger Density</strong></p>
-            <p>1:00 AM - 5:00 AM</p>
-            <p>14:00 PM - 14:30 PM</p>
-            <p>19:00 PM - 21:30 PM</p>
-          </div>
+  <!-- RIGHT: Prediction Details -->
+  <div class="status-right">
+    <!-- STATUS BOX -->
+    <div class="status-box" [ngClass]="getCongestionTextClass(activePrediction.congestionLevel)">
+      <div class="main-status">{{ getCongestionStatus(activePrediction.congestionLevel) }}</div>
+      <div class="sub-status">
+        {{ activePrediction.congestionLevel?.toUpperCase().includes('HEAVY') ? 'RUSH HOUR' : 'LOW TRAFFIC' }}
+      </div>
+    </div>
+
+    <!-- DETAILS -->
+    <div class="detail-info">
+      <p><b class="highlight">Station:</b> {{ activePrediction.station?.name }}</p>
+      <p><b class="highlight">Confidence:</b> {{ activePrediction.confidence | percent:'1.0-0' }}</p>
+    </div>
+
+    <!-- OPTIONAL LOWEST DENSITY TIMES -->
+    <div class="density-section">
+      <p class="density-title">Lowest Passenger Density</p>
+      <div class="density-times">
+        <span>1:00 AM - 5:00 AM</span>
+        <span>14:00 PM - 14:30 PM</span>
+        <span>19:00 PM - 21:30 PM</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+          <div *ngIf="loading" class="loading">🔄 Loading prediction...</div>
+          <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
         </div>
 
+        <!-- SUMMARY PANEL -->
         <div class="panel summary-panel">
           <h3>Account Created</h3>
           <p>10-03-2025</p>
@@ -93,6 +129,7 @@
           <p><a href="#">ko-fi.com/trainTrack</a></p>
           <p><a href="#">github</a></p>
         </div>
+
       </div>
     </section>
   </main>

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
+import { ScheduleService, SavedSchedule } from 'src/app/services/schedule.service';
 
 @Component({
   selector: 'app-prediction',
@@ -50,11 +51,12 @@ export class PredictionComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private scheduleService: ScheduleService
   ) {}
 
   ngOnInit(): void {
-    // Check if user is authenticated
+    // ✅ Check if user is authenticated
     this.authService.currentUser.subscribe(user => {
       this.currentUser = user;
       if (!this.currentUser) {
@@ -65,13 +67,11 @@ export class PredictionComponent implements OnInit {
     this.loadStations();
   }
 
-  /** Load station list from backend */
+  /** ✅ Load stations from backend */
   loadStations(): void {
     this.http.get<any[]>(`${this.BASE_URL}/stations`).subscribe({
       next: (data) => {
-        // Sort by station ID (route order)
         this.stations = data.sort((a, b) => a.id - b.id);
-        // Preselect the first station if available
         if (this.stations.length > 0 && !this.stationId) {
           this.stationId = this.stations[0].id;
         }
@@ -83,29 +83,28 @@ export class PredictionComponent implements OnInit {
     });
   }
 
-  /** Fetch prediction for selected station/time */
+  /** ✅ Fetch prediction data */
   fetchPrediction() {
     if (!this.stationId) {
       this.error = 'Please select a station first.';
       return;
     }
 
-    // Ensure stationId is a number
     this.stationId = Number(this.stationId);
-
-    const now = new Date();
     const [hour, minute] = this.selectedHour.split(':').map(Number);
-    const selected = new Date();
-    selected.setHours(hour, minute, 0, 0);
+    const now = new Date();
 
-    let minutesAhead = Math.floor((selected.getTime() - now.getTime()) / 60000);
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const selectedMinutes = hour * 60 + minute;
+    let minutesAhead = selectedMinutes - nowMinutes;
     if (minutesAhead < 0) minutesAhead += 24 * 60;
 
     this.loading = true;
     this.error = '';
     this.prediction = null;
 
-    this.http.get(`${this.BASE_URL}/predict?stationId=${this.stationId}&minutesAhead=${minutesAhead}`)
+    this.http
+      .get(`${this.BASE_URL}/predict?stationId=${this.stationId}&minutesAhead=${minutesAhead}`)
       .subscribe({
         next: (data) => {
           this.prediction = data;
@@ -116,10 +115,11 @@ export class PredictionComponent implements OnInit {
           console.error('Prediction fetch failed', err);
           this.error = 'Failed to fetch prediction. Please try again.';
           this.loading = false;
-        }
+        },
       });
   }
 
+  /** ✅ Helpers */
   getStationName(id: number | null): string {
     if (id == null) return 'Unknown Station';
     const found = this.stations.find(s => s.id === id);
@@ -136,9 +136,45 @@ export class PredictionComponent implements OnInit {
     return level.toLowerCase().replace(/\s+/g, '-');
   }
 
-  /** Logout user */
+  /** ✅ Logout user */
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
+  /** ✅ Save station + time to dashboard */
+  saveMessage: string | null = null;
+
+  saveSelection() {
+  if (!this.stationId || !this.selectedHour || !this.currentUser) {
+    this.saveMessage = "⚠️ Please select both station and time first.";
+    return;
+  }
+
+  const userId = (this.currentUser as any).id || (this.currentUser as any).userId;
+
+  // Compose the object that matches backend SavedSchedule
+  const newSchedule: SavedSchedule = {
+    congestionLevel: this.prediction?.congestionLevel || 'Unknown',
+    predictedRidership: this.prediction?.predictedRidership || 0,
+    confidence: this.prediction?.confidence || 0,
+    timestamp: this.selectedHour,
+    timeLabel: this.getSelectedHourLabel(this.selectedHour),
+    station: { id: this.stationId },
+    userId
+  };
+
+  this.saveMessage = '💾 Saving...';
+
+  this.scheduleService.saveSchedule(newSchedule).subscribe({
+    next: () => {
+      this.saveMessage = '✅ Saved to Dashboard!';
+      setTimeout(() => this.router.navigate(['/dashboard']), 1000);
+    },
+    error: (err) => {
+      console.error('❌ Save failed:', err);
+      this.saveMessage = '❌ Failed to save. Please try again.';
+    }
+  });
+}
 }

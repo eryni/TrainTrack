@@ -441,3 +441,277 @@ a:hover {
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.9rem;
 }
+/* === Saved Schedules Section (matches your UI style) === */
+.schedule-panel {
+  cursor: default;
+}
+
+.schedule-panel li {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.schedule-panel li:hover {
+  background: rgba(187, 134, 252, 0.15);
+  transform: translateX(3px);
+}
+
+.schedule-panel li.selected {
+  border-left: 4px solid #bb86fc;
+  background: rgba(187, 134, 252, 0.12);
+}
+
+.status-card {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 1.5rem;
+}
+
+.status-card .circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: conic-gradient(#ff7a7a 60%, #2a2640 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.status-text .bad {
+  color: #e94560;
+  font-weight: 700;
+}
+
+.status-text .okay {
+  color: #ffb86c;
+}
+
+.status-text .good {
+  color: #6efcbf;
+}
+
+.status-text .sub {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.2rem;
+}
+
+/* === Modern Prediction Card (dark theme consistency) === */
+.modern-prediction {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(187, 134, 252, 0.15);
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  transition: all 0.3s ease;
+}
+
+.modern-prediction:hover {
+  transform: translateY(-3px);
+  border-color: rgba(233, 69, 96, 0.3);
+}
+
+/* Circular indicator */
+.modern-prediction .circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Color gradients per congestion level */
+.circle.very-heavy,
+.circle.heavy {
+  background: conic-gradient(#ff4f79 70%, #2a2640 0);
+  box-shadow: 0 0 25px rgba(255, 79, 121, 0.3);
+}
+
+.circle.moderate {
+  background: conic-gradient(#ffb86c 60%, #2a2640 0);
+  box-shadow: 0 0 25px rgba(255, 184, 108, 0.3);
+}
+
+.circle.light,
+.circle.low {
+  background: conic-gradient(#6efcbf 60%, #2a2640 0);
+  box-shadow: 0 0 25px rgba(110, 252, 191, 0.3);
+}
+
+/* Text inside the circle */
+.percent {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Text section */
+.status-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.status-text .station-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.status-text b.highlight {
+  color: #bb86fc;
+}
+
+.status-text p {
+  margin: 0.2rem 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modern-prediction {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+/* === DASHBOARD PREDICTION CARD (RUSH HOUR STYLE) === */
+.modern-prediction {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 2rem;
+  gap: 2rem;
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  background: conic-gradient(#a77bff 60%, #2a2640 0);
+  box-shadow: 0 0 25px rgba(167, 123, 255, 0.3);
+}
+
+/* Right section */
+.status-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Status badge box */
+.status-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  border-radius: 0.8rem;
+  text-align: center;
+  width: fit-content;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.status-box.bad-time {
+  background: rgba(233, 69, 96, 0.15);
+  border: 1px solid rgba(233, 69, 96, 0.3);
+}
+
+.status-box.okay-time {
+  background: rgba(255, 184, 108, 0.15);
+  border: 1px solid rgba(255, 184, 108, 0.3);
+}
+
+.status-box.good-time {
+  background: rgba(110, 252, 191, 0.15);
+  border: 1px solid rgba(110, 252, 191, 0.3);
+}
+
+.main-status {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #ff6b7a;
+}
+
+.sub-status {
+  font-size: 0.85rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Lowest Passenger Density */
+.density-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.density-title {
+  color: #6efcbf;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.density-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.density-times span {
+  white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modern-prediction {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .status-right {
+    align-items: center;
+  }
+}
+
+
+
+
