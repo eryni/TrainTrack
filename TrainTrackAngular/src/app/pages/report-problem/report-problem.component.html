@@ -1,15 +1,22 @@
 <div class="report-page">
-  <!-- Header -->
-  <header class="header">
+  <!-- HEADER -->
+  <header class="top-bar">
     <div class="logo">
-      <span class="logo-text">train<span>Track</span></span>
+      <span class="logo-icon">tr</span>
+      <span class="logo-train">▲</span>
+      <span class="logo-text">inTrack</span>
     </div>
-
-    <div class="welcome-text">
-      <p>Welcome back, <strong>User00</strong>!</p>
+    
+    <div class="header-actions">
+      <span class="welcome-text" *ngIf="currentUser">
+        Welcome, {{ currentUser.firstName }}!
+      </span>
+      <button class="btn-logout" (click)="logout()" *ngIf="currentUser">
+        Logout
+      </button>
     </div>
   </header>
-
+  
   <!-- User Info -->
   <section class="user-section">
     <div class="avatar-placeholder"></div>
@@ -38,19 +45,22 @@
     <button class="btn-send">Send</button>
   </section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="nav-item">
-      <span class="icon">📊</span>
-      <p>Prediction</p>
-    </div>
-    <div class="nav-item">
-      <span class="icon">📋</span>
-      <p>Dashboard</p>
-    </div>
-    <div class="nav-item active">
-      <span class="icon">❗</span>
-      <p>Report</p>
-    </div>
-  </footer>
+ 
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button routerLink="/prediction" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="icon material-icons">bar_chart</i>
+      <span>Prediction</span>
+    </button>
+
+    <button routerLink="/dashboard" routerLinkActive="active">
+      <i class="icon material-icons">grid_view</i>
+      <span>Dashboard</span>
+    </button>
+
+    <button routerLink="/report-problem" routerLinkActive="active">
+      <i class="icon material-icons">report_problem</i>
+      <span>Report</span>
+    </button>
+  </nav>
 </div>
