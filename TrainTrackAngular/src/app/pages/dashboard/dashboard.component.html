@@ -39,8 +39,31 @@
         <div class="panel account-panel">
           <h3>Account</h3>
           <div class="row">
-            <a href="#">Change username</a>
-            <a href="#">Change password</a>
+            <!-- CHANGE USERNAME -->
+            <div class="account-action">
+              <button class="btn-mini" (click)="toggleUsernameForm()">
+                {{ showUsernameForm ? 'Cancel' : 'Change username' }}
+              </button>
+
+              <div *ngIf="showUsernameForm" class="form-box">
+                <input type="text" [(ngModel)]="newUsername" placeholder="Enter new username" />
+                <button class="btn-submit" (click)="changeUsername()">Save</button>
+              </div>
+            </div>
+
+            <!-- CHANGE PASSWORD -->
+            <div class="account-action">
+              <button class="btn-mini" (click)="togglePasswordForm()">
+                {{ showPasswordForm ? 'Cancel' : 'Change password' }}
+              </button>
+
+              <div *ngIf="showPasswordForm" class="form-box">
+                <input type="password" [(ngModel)]="oldPassword" placeholder="Current password" />
+                <input type="password" [(ngModel)]="newPassword" placeholder="New password" />
+                <button class="btn-submit" (click)="changePassword()">Update</button>
+              </div>
+            </div>
+
           </div>
 
           <h3>Profile</h3>

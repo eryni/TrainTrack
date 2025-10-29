@@ -174,4 +174,37 @@ export class DashboardComponent implements OnInit {
   return match ? match.label : value;
 }
   
+showUsernameForm = false;
+showPasswordForm = false;
+newUsername = '';
+oldPassword = '';
+newPassword = '';
+
+toggleUsernameForm() {
+  this.showUsernameForm = !this.showUsernameForm;
+  this.showPasswordForm = false;
+}
+
+togglePasswordForm() {
+  this.showPasswordForm = !this.showPasswordForm;
+  this.showUsernameForm = false;
+}
+
+changeUsername() {
+  if (!this.newUsername.trim()) return alert('Please enter a new username.');
+  // Example call (replace with your UserService when connected to API)
+  console.log('Username changed to:', this.newUsername);
+  alert('Username updated successfully!');
+  this.showUsernameForm = false;
+}
+
+changePassword() {
+  if (!this.oldPassword || !this.newPassword)
+    return alert('Please fill all password fields.');
+  // Example call (replace with your UserService when backend is ready)
+  console.log('Password updated:', this.newPassword);
+  alert('Password updated successfully!');
+  this.showPasswordForm = false;
+}
+
 }

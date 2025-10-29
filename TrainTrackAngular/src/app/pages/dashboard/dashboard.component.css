@@ -710,8 +710,72 @@ a:hover {
   .status-right {
     align-items: center;
   }
+
 }
 
+
+.account-action {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.btn-mini {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+}
+
+.btn-mini:hover {
+  background: rgba(187, 134, 252, 0.2);
+  border-color: #bb86fc;
+}
+
+.form-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 0.8rem;
+}
+
+.form-box input {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.form-box input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.btn-submit {
+  background: linear-gradient(90deg, #e94560 0%, #bb86fc 100%);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  align-self: flex-start;
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(187, 134, 252, 0.3);
+}
 
 
 
