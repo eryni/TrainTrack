@@ -349,4 +349,41 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+    @PutMapping("/{id}/change-email")
+    public ResponseEntity<?> changeEmail(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        String newEmail = payload.get("newEmail");
+        if (newEmail == null || newEmail.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "New email is required"));
+        }
+
+        try {
+            userService.updateEmail(id, newEmail);
+            return ResponseEntity.ok(Map.of("message", "Email updated successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Failed to update email"));
+        }
+    }
+
+    @PutMapping("/{id}/change-password")
+    public ResponseEntity<?> changePassword(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        String currentPassword = payload.get("currentPassword");
+        String newPassword = payload.get("newPassword");
+
+        if (currentPassword == null || newPassword == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Both current and new passwords are required"));
+        }
+
+        try {
+            userService.changePassword(id, currentPassword, newPassword);
+            return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Failed to change password"));
+        }
+    }
+
+
 }

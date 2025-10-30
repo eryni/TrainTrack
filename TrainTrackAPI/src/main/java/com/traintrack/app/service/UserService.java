@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+
     @Autowired
     private UserRepository userRepository;
 
@@ -92,4 +93,35 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
+    // NEW 
+    public void updateEmail(Long userId, String newEmail) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new IllegalArgumentException("User not found");
+        }
+
+        User user = optionalUser.get();
+        user.setEmail(newEmail);
+        userRepository.save(user);
+    }
+
+    public void changePassword(Long userId, String currentPassword, String newPassword) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new IllegalArgumentException("User not found");
+        }
+
+        User user = optionalUser.get();
+
+        // Check current password using the hash field
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new IllegalArgumentException("Incorrect current password");
+        }
+
+        // Encode and update new password (save to passwordHash)
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
 }
