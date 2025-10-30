@@ -6,10 +6,24 @@ TrainTrack is a web-based platform that provides AI-powered predictions of passe
 
 ## Project Structure
 ```
-/TrainTrack
-  /TrainTrackAngular   # Angular frontend application
-  /TrainTrackAPI       # Spring Boot backend API
-  README.md            # Project documentation
+TrainTrack
+├── README.md          # Project documentation
+├── TrainTrackAPI      # Spring Boot backend API  
+│   ├── pom.xml
+│   ├── src
+│   └── target
+├── TrainTrackAngular  # Angular frontend application
+│   ├── README.md
+│   ├── angular.json
+│   ├── node_modules
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── proxy.conf.json
+│   ├── src
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   └── tsconfig.spec.json
+└── package-lock.json
 ```
 
 ## Features
