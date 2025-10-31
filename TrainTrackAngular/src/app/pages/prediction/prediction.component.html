@@ -1,26 +1,36 @@
 <div class="prediction-container">
   <!-- HEADER -->
   <header class="top-bar">
-    <div class="logo">
+    <div class="logo" routerLink="/prediction" style="cursor: pointer;">
       <span class="logo-icon">tr</span>
       <span class="logo-train">▲</span>
       <span class="logo-text">inTrack</span>
     </div>
     
     <div class="header-actions">
-      <span class="welcome-text" *ngIf="currentUser">
-        Welcome, {{ currentUser.firstName }}!
+      <div class="user-avatar-small" *ngIf="currentUser">
+        <img *ngIf="currentUser?.profileImageUrl" 
+             [src]="'http://localhost:8080' + currentUser.profileImageUrl" 
+             alt="Profile"
+             style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <div *ngIf="!currentUser?.profileImageUrl" class="avatar-placeholder-small"></div>
+      </div>
+      <span class="username-text" *ngIf="currentUser">
+        {{ currentUser.firstName }}
       </span>
       <button class="btn-logout" (click)="logout()" *ngIf="currentUser">
         Logout
+      </button>
+      <button class="btn-logout" routerLink="/login" *ngIf="!currentUser">
+        Login
       </button>
     </div>
   </header>
 
   <!-- MAIN CONTENT -->
   <main class="main-content">
-    <!-- LEFT PANEL -->
     <section class="panel left-panel">
+      <!-- Prediction Card -->
       <div class="card">
         <h3>Select Station</h3>
         <div class="form-group">
@@ -35,7 +45,7 @@
         <h3>Select Time</h3>
         <div class="form-group">
           <select [(ngModel)]="selectedHour">
-            <option *ngFor="let t of times" [value]="t.value">
+            <option *ngFor="let t of timeOptions" [value]="t.value">
               {{ t.label }}
             </option>
           </select>
@@ -45,22 +55,36 @@
           {{ loading ? 'Predicting...' : 'Predict Congestion' }}
         </button>
       </div>
+
+      <!-- Save Selection Box -->
+      <div class="card">
+        <h3>Save Selection</h3>
+        <p>Save your selected station and time for later.</p>
+
+        <button class="btn-predict" (click)="saveSelection()" [disabled]="!stationId || !selectedHour">
+          Save Station & Time
+        </button>
+
+        <div class="saved-message" *ngIf="saveMessage">
+          {{ saveMessage }}
+        </div>
+      </div>
     </section>
 
     <!-- CENTER PANEL -->
     <section class="panel center-panel">
       <!-- Loading State -->
       <div *ngIf="loading" class="loading">
-        <p>🔄 Analyzing ridership data...</p>
+        <p>Analyzing ridership data...</p>
       </div>
 
       <!-- Error State -->
-      <div *ngIf="error && !loading" class="error">
-        <p>{{ error }}</p>
+      <div *ngIf="errorMessage && !loading" class="error">
+        <p>{{ errorMessage }}</p>
       </div>
 
       <!-- Prediction Result Card -->
-      <div *ngIf="prediction && !loading && !error" class="congestion-card">
+      <div *ngIf="prediction && !loading && !errorMessage" class="congestion-card">
         <div class="circle" [ngClass]="getCongestionClass(prediction.congestionLevel)">
           <div class="percent">{{ prediction.predictedRidership }}</div>
           <div class="label">{{ prediction.congestionLevel }}</div>
@@ -73,11 +97,107 @@
         </div>
       </div>
 
-      <!-- Chart Placeholders -->
-      <div class="charts-placeholder">
-        <div class="chart-box">[ Historical Trends ]</div>
-        <div class="chart-box">[ Peak Hours Analysis ]</div>
-        <div class="chart-box">[ Station Comparison ]</div>
+      <!-- Power BI Reports -->
+      <div class="charts-placeholder" *ngIf="prediction && !loading">
+        <!-- Historical Trends -->
+        <div class="chart-box">
+          <div class="chart-header">
+            <h4>Historical Trends</h4>
+          </div>
+          
+          <!-- Loading State -->
+          <div *ngIf="!powerBILoaded" class="chart-loading">
+            <p>Loading Power BI report...</p>
+          </div>
+          
+          <!-- Error State -->
+          <div *ngIf="powerBILoaded && powerBIError" class="chart-error">
+            <p>Power BI reports are not configured</p>
+            <span>Please check backend configuration</span>
+          </div>
+          
+          <!-- Success - Show iframe -->
+          <div class="powerbi-frame-container" *ngIf="powerBILoaded && !powerBIError && historicalTrendsUrl">
+            <iframe 
+              [src]="historicalTrendsUrl" 
+              frameborder="0" 
+              allowFullScreen="true"
+              class="powerbi-iframe"
+              (load)="onIframeLoad('historical')"
+              (error)="onIframeError('historical')">
+            </iframe>
+          </div>
+          
+          <!-- No URL configured -->
+          <div *ngIf="powerBILoaded && !powerBIError && !historicalTrendsUrl" class="chart-placeholder">
+            <p>Historical Trends Report</p>
+            <span>Report URL not configured in backend</span>
+          </div>
+        </div>
+
+        <!-- Peak Hours Analysis -->
+        <div class="chart-box">
+          <div class="chart-header">
+            <h4>Peak Hours Analysis</h4>
+          </div>
+          
+          <div *ngIf="!powerBILoaded" class="chart-loading">
+            <p>Loading Power BI report...</p>
+          </div>
+          
+          <div *ngIf="powerBILoaded && powerBIError" class="chart-error">
+            <p>Power BI reports are not configured</p>
+            <span>Please check backend configuration</span>
+          </div>
+          
+          <div class="powerbi-frame-container" *ngIf="powerBILoaded && !powerBIError && peakHoursUrl">
+            <iframe 
+              [src]="peakHoursUrl" 
+              frameborder="0" 
+              allowFullScreen="true"
+              class="powerbi-iframe"
+              (load)="onIframeLoad('peak')"
+              (error)="onIframeError('peak')">
+            </iframe>
+          </div>
+          
+          <div *ngIf="powerBILoaded && !powerBIError && !peakHoursUrl" class="chart-placeholder">
+            <p>Peak Hours Analysis Report</p>
+            <span>Report URL not configured in backend</span>
+          </div>
+        </div>
+
+        <!-- Station Comparison -->
+        <div class="chart-box">
+          <div class="chart-header">
+            <h4>Station Comparison</h4>
+          </div>
+          
+          <div *ngIf="!powerBILoaded" class="chart-loading">
+            <p>Loading Power BI report...</p>
+          </div>
+          
+          <div *ngIf="powerBILoaded && powerBIError" class="chart-error">
+            <p>Power BI reports are not configured</p>
+            <span>Please check backend configuration</span>
+          </div>
+          
+          <div class="powerbi-frame-container" *ngIf="powerBILoaded && !powerBIError && stationComparisonUrl">
+            <iframe 
+              [src]="stationComparisonUrl" 
+              frameborder="0" 
+              allowFullScreen="true"
+              class="powerbi-iframe"
+              (load)="onIframeLoad('comparison')"
+              (error)="onIframeError('comparison')">
+            </iframe>
+          </div>
+          
+          <div *ngIf="powerBILoaded && !powerBIError && !stationComparisonUrl" class="chart-placeholder">
+            <p>Station Comparison Report</p>
+            <span>Report URL not configured in backend</span>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -85,17 +205,17 @@
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
     <button routerLink="/prediction" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      <i class="icon material-icons">bar_chart</i>
+      <i class="icon material-icons">timeline</i>
       <span>Prediction</span>
     </button>
 
     <button routerLink="/dashboard" routerLinkActive="active">
-      <i class="icon material-icons">grid_view</i>
+      <i class="icon material-icons">dashboard</i>
       <span>Dashboard</span>
     </button>
 
-    <button routerLink="/report" routerLinkActive="active">
-      <i class="icon material-icons">report_problem</i>
+    <button routerLink="/report-problem" routerLinkActive="active">
+      <i class="icon material-icons">report</i>
       <span>Report</span>
     </button>
   </nav>

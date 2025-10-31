@@ -9,7 +9,6 @@ import java.util.List;
 @Repository
 public interface RidershipDataRepository extends JpaRepository<RidershipData, Long> {
 
-    // ✅ Correct way to access a field of a related entity
     List<RidershipData> findByStation_Id(Long stationId);
 
     List<RidershipData> findByStation_IdAndYear(Long stationId, String year);

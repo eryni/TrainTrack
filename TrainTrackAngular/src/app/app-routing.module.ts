@@ -3,8 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { PredictionComponent } from './pages/prediction/prediction.component';
+import { ReportProblemComponent } from './pages/report-problem/report-problem.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { ReportComponent } from './pages/report/report.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { VerifyEmailComponent } from './pages/verify-email/verify-email.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
@@ -16,10 +16,10 @@ const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'verify', component: VerifyEmailComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-  { path: '', component: PredictionComponent, canActivate: [AuthGuard] },
-  { path: 'prediction', component: PredictionComponent, canActivate: [AuthGuard] },
+  { path: '', component: PredictionComponent },
+  { path: 'prediction', component: PredictionComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'report', component: ReportComponent, canActivate: [AuthGuard] },
+  { path: 'report-problem', component: ReportProblemComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 

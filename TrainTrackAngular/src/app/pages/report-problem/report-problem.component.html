@@ -1,0 +1,104 @@
+<div class="report-page">
+  <!-- HEADER -->
+  <header class="top-bar">
+    <div class="logo" routerLink="/prediction" style="cursor: pointer;">
+      <span class="logo-icon">tr</span>
+      <span class="logo-train">▲</span>
+      <span class="logo-text">inTrack</span>
+    </div>
+    
+    <div class="header-actions">
+      <div class="user-avatar-small" *ngIf="currentUser">
+        <img *ngIf="currentUser?.profileImageUrl" 
+             [src]="'http://localhost:8080' + currentUser?.profileImageUrl" 
+             alt="Profile"
+             style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <div *ngIf="!currentUser?.profileImageUrl" class="avatar-placeholder-small"></div>
+      </div>
+      <span class="username-text" *ngIf="currentUser">
+        {{ currentUser?.firstName }}
+      </span>
+      <button class="btn-logout" (click)="logout()" *ngIf="currentUser">
+        Logout
+      </button>
+    </div>
+  </header>
+  
+  <!-- User Info -->
+  <section class="user-section">
+    <div class="avatar-placeholder">
+      <img *ngIf="currentUser?.profileImageUrl" 
+           [src]="'http://localhost:8080' + currentUser?.profileImageUrl" 
+           alt="Profile"
+           style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      <div *ngIf="!currentUser?.profileImageUrl" 
+           style="width: 100%; height: 100%; background: linear-gradient(135deg, #bb86fc, #e94560); border-radius: 50%;"></div>
+    </div>
+    <div class="user-info">
+      <h2>{{ currentUser?.firstName || 'User' }}</h2>
+      <p><em>{{ currentUser?.lastName || 'User tagline for fun' }}</em></p>
+    </div>
+    <div class="datetime">
+      <p>{{ currentDateTime.date }}</p>
+      <p>PHT {{ currentDateTime.time }}</p>
+    </div>
+  </section>
+
+  <!-- Report Form -->
+  <section class="report-form">
+    <h3>Report a Problem</h3>
+
+    <div *ngIf="successMessage" class="success-message">
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <div class="field">
+      <input 
+        type="text" 
+        placeholder="Title" 
+        class="input-title" 
+        [(ngModel)]="reportTitle"
+        [disabled]="isSubmitting"
+      />
+    </div>
+
+    <div class="field">
+      <textarea 
+        placeholder="Body" 
+        class="input-body"
+        [(ngModel)]="reportBody"
+        [disabled]="isSubmitting"
+      ></textarea>
+    </div>
+
+    <button 
+      class="btn-send" 
+      (click)="submitReport()"
+      [disabled]="isSubmitting"
+    >
+      {{ isSubmitting ? 'Sending...' : 'Send' }}
+    </button>
+  </section>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button routerLink="/prediction" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="icon material-icons">timeline</i>
+      <span>Prediction</span>
+    </button>
+
+    <button routerLink="/dashboard" routerLinkActive="active">
+      <i class="icon material-icons">dashboard</i>
+      <span>Dashboard</span>
+    </button>
+
+    <button routerLink="/report-problem" routerLinkActive="active">
+      <i class="icon material-icons">report</i>
+      <span>Report</span>
+    </button>
+  </nav>
+</div>

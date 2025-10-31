@@ -52,13 +52,6 @@
   gap: 15px;
 }
 
-.welcome-text {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 14px;
-  margin: 0;
-  line-height: 1;
-}
-
 .btn-logout {
   padding: 8px 20px;
   background: rgba(255, 255, 255, 0.1);
@@ -160,6 +153,17 @@ select option {
   cursor: not-allowed;
 }
 
+.saved-message {
+  margin-top: 0.8rem;
+  padding: 0.8rem;
+  background: rgba(110, 252, 191, 0.15);
+  border: 1px solid rgba(110, 252, 191, 0.3);
+  border-radius: 6px;
+  color: #6efcbf;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 /* Center Panel */
 .panel.center-panel {
   display: flex;
@@ -254,32 +258,151 @@ select option {
   margin-bottom: 1rem;
 }
 
+/* Power BI Charts */
+.chart-error {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 450px;
+  gap: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  background: rgba(233, 69, 96, 0.1);
+}
+
+.chart-error p {
+  color: #ff6b7a;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.chart-error span {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+}
+
+.powerbi-iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 450px;
+  border: none;
+  display: block;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.chart-loading::after {
+  content: '';
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(187, 134, 252, 0.2);
+  border-top-color: #bb86fc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: block;
+  margin: 1rem auto 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .charts-placeholder {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  flex-grow: 1;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
 }
 
 .chart-box {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 1rem;
-  min-height: 220px;
+  min-height: 500px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #b388f8;
-  font-weight: 500;
-  font-size: 1rem;
+  flex-direction: column;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.bottom-nav {
+.chart-box:hover {
+  border-color: rgba(187, 134, 252, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.chart-header {
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chart-header h4 {
+  margin: 0;
+  color: #bb86fc;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.powerbi-frame-container {
+  flex: 1;
+  min-height: 450px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.powerbi-iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 450px;
+  border: none;
+  display: block;
+}
+
+.chart-loading {
+  flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 2rem;
-  padding: 1.5rem;
+  justify-content: center;
+  min-height: 450px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.chart-loading p {
+  font-size: 0.9rem;
+}
+
+.chart-placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 450px;
+  gap: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.chart-placeholder p {
+  color: #bb86fc;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.chart-placeholder span {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: 60px;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -289,33 +412,52 @@ select option {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 4px;
   background: transparent;
   border: none;
   color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
-  padding: 0.5rem 1.5rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  padding: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  position: relative;
+}
+
+.bottom-nav button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background-color 0.2s ease;
 }
 
 .bottom-nav button:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: #bb86fc;
 }
 
 .bottom-nav button.active {
-  background: linear-gradient(90deg, rgba(233, 69, 96, 0.2), rgba(187, 134, 252, 0.2));
   color: #bb86fc;
-  border: 1px solid rgba(187, 134, 252, 0.3);
+  background: rgba(187, 134, 252, 0.1);
+}
+
+.bottom-nav button.active::before {
+  background: #bb86fc;
 }
 
 .bottom-nav .icon {
-  font-size: 24px;
+  font-size: 22px;
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
 }
 
 .bottom-nav span {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
 }
 
@@ -326,7 +468,7 @@ select option {
   }
   
   .charts-placeholder {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   }
 }
 
@@ -353,10 +495,6 @@ select option {
   
   .logo {
     font-size: 20px;
-  }
-  
-  .welcome-text {
-    display: none;
   }
   
   .main-content {
@@ -388,5 +526,9 @@ select option {
   
   .bottom-nav span {
     display: none;
+  }
+  
+  .charts-placeholder {
+    grid-template-columns: 1fr;
   }
 }

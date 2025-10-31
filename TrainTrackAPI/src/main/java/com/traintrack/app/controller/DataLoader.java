@@ -21,3 +21,4 @@ public class DataLoader implements CommandLineRunner {
         excelImportService.importData();
     }
 }
+

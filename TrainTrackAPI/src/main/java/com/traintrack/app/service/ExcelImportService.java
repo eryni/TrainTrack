@@ -130,7 +130,8 @@ public class ExcelImportService {
             case NUMERIC -> cell.getNumericCellValue();
             case STRING -> {
                 try {
-                    yield Double.parseDouble(cell.getStringCellValue());
+                    String val = cell.getStringCellValue().replace(",", "").trim();
+                    yield Double.parseDouble(val);
                 } catch (NumberFormatException e) {
                     yield null;
                 }

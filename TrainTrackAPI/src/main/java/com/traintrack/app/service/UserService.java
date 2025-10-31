@@ -92,4 +92,12 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
+    public boolean isUsernameTaken(String username, Long excludeUserId) {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .filter(u -> !u.getUserId().equals(excludeUserId))
+                .anyMatch(u -> u.getFirstName() != null &&
+                        u.getFirstName().equalsIgnoreCase(username.trim()));
+    }
 }

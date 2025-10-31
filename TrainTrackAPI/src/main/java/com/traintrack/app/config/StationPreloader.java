@@ -16,3 +16,4 @@ public class StationPreloader implements CommandLineRunner {
         stationService.preloadStations();
     }
 }
+

@@ -3,6 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
+import { ScheduleService, SavedSchedule } from '../../services/schedule.service';
+import { PowerBIService } from '../../services/powerbi.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-prediction',
@@ -12,7 +15,7 @@ import { User } from '../../models/user.model';
 export class PredictionComponent implements OnInit {
   currentUser: User | null = null;
   stations: any[] = [];
-  times = [
+  timeOptions = [
     { label: '00:00 – 00:59', value: '00:00' },
     { label: '01:00 – 01:59', value: '01:00' },
     { label: '02:00 – 02:59', value: '02:00' },
@@ -43,66 +46,71 @@ export class PredictionComponent implements OnInit {
   selectedHour: string = '08:00';
   prediction: any = null;
   loading = false;
-  error = '';
+  errorMessage = '';
+  saveMessage: string | null = null;
+  
+  historicalTrendsUrl: SafeResourceUrl | null = null;
+  peakHoursUrl: SafeResourceUrl | null = null;
+  stationComparisonUrl: SafeResourceUrl | null = null;
+  powerBILoaded = false;
+  powerBIError = false;
+  
+  private baseHistoricalUrl: string = '';
+  private basePeakHoursUrl: string = '';
+  private baseStationComparisonUrl: string = '';
 
   private readonly BASE_URL = 'http://localhost:8080/api';
 
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private scheduleService: ScheduleService,
+    private powerBIService: PowerBIService,
+    private sanitizer: DomSanitizer 
   ) {}
 
   ngOnInit(): void {
-    // Check if user is authenticated
     this.authService.currentUser.subscribe(user => {
       this.currentUser = user;
-      if (!this.currentUser) {
-        this.router.navigate(['/login']);
-      }
     });
 
     this.loadStations();
+    this.loadPowerBIConfig();
   }
 
-  /** Load station list from backend */
   loadStations(): void {
     this.http.get<any[]>(`${this.BASE_URL}/stations`).subscribe({
       next: (data) => {
-        // Sort by station ID (route order)
         this.stations = data.sort((a, b) => a.id - b.id);
-        // Preselect the first station if available
         if (this.stations.length > 0 && !this.stationId) {
           this.stationId = this.stations[0].id;
         }
       },
       error: (err) => {
         console.error('Failed to load stations', err);
-        this.error = 'Failed to load stations. Please refresh the page.';
+        this.errorMessage = 'Failed to load stations. Please refresh the page.';
       }
     });
   }
 
-  /** Fetch prediction for selected station/time */
   fetchPrediction() {
     if (!this.stationId) {
-      this.error = 'Please select a station first.';
+      this.errorMessage = 'Please select a station first.';
       return;
     }
 
-    // Ensure stationId is a number
     this.stationId = Number(this.stationId);
-
-    const now = new Date();
     const [hour, minute] = this.selectedHour.split(':').map(Number);
-    const selected = new Date();
-    selected.setHours(hour, minute, 0, 0);
+    const now = new Date();
 
-    let minutesAhead = Math.floor((selected.getTime() - now.getTime()) / 60000);
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const selectedMinutes = hour * 60 + minute;
+    let minutesAhead = selectedMinutes - nowMinutes;
     if (minutesAhead < 0) minutesAhead += 24 * 60;
 
     this.loading = true;
-    this.error = '';
+    this.errorMessage = '';
     this.prediction = null;
 
     this.http.get(`${this.BASE_URL}/predict?stationId=${this.stationId}&minutesAhead=${minutesAhead}`)
@@ -110,13 +118,13 @@ export class PredictionComponent implements OnInit {
         next: (data) => {
           this.prediction = data;
           this.loading = false;
-          console.log('Prediction received:', this.prediction);
+          this.updatePowerBIFilters();
         },
         error: (err) => {
           console.error('Prediction fetch failed', err);
-          this.error = 'Failed to fetch prediction. Please try again.';
+          this.errorMessage = 'Failed to fetch prediction. Please try again.';
           this.loading = false;
-        }
+        },
       });
   }
 
@@ -127,7 +135,7 @@ export class PredictionComponent implements OnInit {
   }
 
   getSelectedHourLabel(value: string): string {
-    const match = this.times.find(t => t.value === value);
+    const match = this.timeOptions.find(t => t.value === value);
     return match ? match.label : value;
   }
 
@@ -136,7 +144,105 @@ export class PredictionComponent implements OnInit {
     return level.toLowerCase().replace(/\s+/g, '-');
   }
 
-  /** Logout user */
+  saveSelection() {
+    if (!this.stationId || !this.selectedHour) {
+      this.saveMessage = "Please select both station and time first.";
+      return;
+    }
+    
+    if (!this.currentUser) {
+      this.saveMessage = "Please login to save selections.";
+      setTimeout(() => this.router.navigate(['/login']), 1500);
+      return;
+    }
+
+    const userId = (this.currentUser as any).id || (this.currentUser as any).userId;
+    const newSchedule: SavedSchedule = {
+      congestionLevel: this.prediction?.congestionLevel || 'Unknown',
+      predictedRidership: this.prediction?.predictedRidership || 0,
+      confidence: this.prediction?.confidence || 0,
+      timestamp: this.selectedHour,
+      timeLabel: this.getSelectedHourLabel(this.selectedHour),
+      station: { id: this.stationId },
+      userId
+    };
+
+    this.saveMessage = 'Saving...';
+
+    this.scheduleService.saveSchedule(newSchedule).subscribe({
+      next: () => {
+        this.saveMessage = 'Saved to Dashboard!';
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+        }, 1000);
+      },
+      error: (err) => {
+        console.error('Save failed:', err);
+        this.saveMessage = 'Failed to save. Please try again.';
+      }
+    });
+  }
+
+  loadPowerBIConfig(): void {
+    this.powerBIService.getPowerBIConfig().subscribe({
+      next: (config) => {
+        console.log('Power BI Config received:', config);
+        
+        this.baseHistoricalUrl = config.historicalTrendsUrl || '';
+        this.basePeakHoursUrl = config.peakHoursUrl || '';
+        this.baseStationComparisonUrl = config.stationComparisonUrl || '';
+        
+        if (!this.baseHistoricalUrl || !this.basePeakHoursUrl || !this.baseStationComparisonUrl) {
+          console.warn('Some Power BI URLs are missing:', config);
+          this.powerBIError = true;
+        }
+        
+        if (this.baseHistoricalUrl) {
+          this.historicalTrendsUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.baseHistoricalUrl);
+        }
+        if (this.basePeakHoursUrl) {
+          this.peakHoursUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.basePeakHoursUrl);
+        }
+        if (this.baseStationComparisonUrl) {
+          this.stationComparisonUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.baseStationComparisonUrl);
+        }
+        
+        this.powerBILoaded = true;
+        console.log('Power BI URLs loaded successfully');
+      },
+      error: (err) => {
+        console.error('Failed to load Power BI config:', err);
+        this.powerBILoaded = true;
+        this.powerBIError = true;
+      }
+    });
+  }
+
+  updatePowerBIFilters(): void {
+    if (!this.stationId || !this.baseHistoricalUrl || !this.basePeakHoursUrl) {
+      console.warn('Cannot update filters - missing station or URLs');
+      return;
+    }
+
+    const selectedStationName = this.getStationName(this.stationId);
+    
+    const historicalFiltered = this.addStationFilter(this.baseHistoricalUrl, selectedStationName);
+    const peakHoursFiltered = this.addStationFilter(this.basePeakHoursUrl, selectedStationName);
+    
+    this.historicalTrendsUrl = this.sanitizer.bypassSecurityTrustResourceUrl(historicalFiltered);
+    this.peakHoursUrl = this.sanitizer.bypassSecurityTrustResourceUrl(peakHoursFiltered);
+    
+    console.log(`Power BI reports filtered for station: ${selectedStationName}`);
+  }
+
+  private addStationFilter(baseUrl: string, stationName: string): string {
+    const cleanUrl = baseUrl.split('&$filter=')[0];
+    
+    const filterParam = `&$filter=Station/name eq '${encodeURIComponent(stationName)}'`;
+    
+    return cleanUrl + filterParam;
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);

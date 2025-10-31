@@ -33,6 +33,11 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  public updateCurrentUser(user: User): void {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    this.currentUserSubject.next(user);
+  }
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     console.error('HTTP Error:', error);
     
@@ -76,8 +81,7 @@ export class AuthService {
         map(response => {
           console.log('Login response:', response);
           if (response && response.user) {
-            localStorage.setItem('currentUser', JSON.stringify(response.user));
-            this.currentUserSubject.next(response.user);
+            this.updateCurrentUser(response.user);
             return response.user;
           }
           throw new Error('Invalid response from server');
@@ -102,8 +106,7 @@ export class AuthService {
     return this.http.put<User>(`${this.apiUrl}/${userId}`, user).pipe(
       tap(updatedUser => {
         console.log('Profile updated:', updatedUser);
-        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-        this.currentUserSubject.next(updatedUser);
+        this.updateCurrentUser(updatedUser);
       }),
       catchError(this.handleError)
     );

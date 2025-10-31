@@ -1,5 +1,8 @@
 package com.traintrack.app.controller;
 
+import com.traintrack.app.model.SavedSchedule;
+import com.traintrack.app.repository.SavedScheduleRepository;
+import java.util.stream.Collectors;
 import com.traintrack.app.model.User;
 import com.traintrack.app.service.UserService;
 import com.traintrack.app.service.EmailService;
@@ -7,11 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Random;
 import java.time.LocalDateTime;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -22,6 +30,11 @@ public class UserController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private SavedScheduleRepository savedScheduleRepository;
+
+    private static final String UPLOAD_DIR = "uploads/profile-images/";
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -40,10 +53,10 @@ public class UserController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            System.out.println("📝 Registration attempt for email: " + user.getEmail());
+            System.out.println("Registration attempt for email: " + user.getEmail());
 
             if (userService.getUserByEmail(user.getEmail()).isPresent()) {
-                System.out.println("❌ Email already registered: " + user.getEmail());
+                System.out.println("Email already registered: " + user.getEmail());
                 response.put("error", "Email already registered");
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
@@ -53,10 +66,10 @@ public class UserController {
             user.setEmailVerified(false);
             user.setVerificationCodeExpiry(LocalDateTime.now().plusHours(24));
 
-            System.out.println("🔐 Generated verification code: " + verificationCode);
+            System.out.println("Generated verification code: " + verificationCode);
 
             User createdUser = userService.createUser(user);
-            System.out.println("✅ User created with ID: " + createdUser.getUserId());
+            System.out.println("User created with ID: " + createdUser.getUserId());
 
             try {
                 emailService.sendVerificationEmail(
@@ -64,9 +77,9 @@ public class UserController {
                         user.getFirstName(),
                         verificationCode
                 );
-                System.out.println("✅ Verification email sent to: " + user.getEmail());
+                System.out.println("Verification email sent to: " + user.getEmail());
             } catch (Exception emailError) {
-                System.err.println("⚠️  Failed to send email: " + emailError.getMessage());
+                System.err.println("Failed to send email: " + emailError.getMessage());
                 emailError.printStackTrace();
             }
 
@@ -98,7 +111,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
-        System.out.println("👤 User found - Email verified: " + user.getEmailVerified());
+        System.out.println("User found - Email verified: " + user.getEmailVerified());
 
         if (!user.getEmailVerified()) {
             System.out.println("Email not verified for: " + email);
@@ -347,6 +360,237 @@ public class UserController {
             e.printStackTrace();
             response.put("error", "Failed to reset password: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/{id}/username")
+    public ResponseEntity<Map<String, Object>> changeUsername(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String newUsername = request.get("newUsername");
+
+            if (newUsername == null || newUsername.trim().isEmpty()) {
+                response.put("error", "Username cannot be empty");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            if (newUsername.length() < 3) {
+                response.put("error", "Username must be at least 3 characters long");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            // Check if username is already taken
+            if (userService.isUsernameTaken(newUsername.trim(), id)) {
+                response.put("error", "Username is already taken");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+
+            User user = userService.getUserById(id).orElse(null);
+            if (user == null) {
+                response.put("error", "User not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            user.setFirstName(newUsername.trim());
+            userService.updateUser(id, user);
+
+            response.put("message", "Username updated successfully");
+            response.put("user", user);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("Failed to update username: " + e.getMessage());
+            response.put("error", "Failed to update username: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Map<String, Object>> changePassword(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String currentPassword = request.get("currentPassword");
+            String newPassword = request.get("newPassword");
+
+            if (currentPassword == null || newPassword == null) {
+                response.put("error", "Both current and new passwords are required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            if (newPassword.length() < 8) {
+                response.put("error", "New password must be at least 8 characters long");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            User user = userService.getUserById(id).orElse(null);
+            if (user == null) {
+                response.put("error", "User not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            if (!userService.validatePassword(currentPassword, user.getPasswordHash())) {
+                response.put("error", "Current password is incorrect");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            userService.resetUserPassword(id, newPassword);
+
+            response.put("message", "Password updated successfully");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("Failed to update password: " + e.getMessage());
+            response.put("error", "Failed to update password: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/{id}/bio")
+    public ResponseEntity<Map<String, Object>> updateBio(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String bio = request.get("bio");
+
+            if (bio == null) {
+                response.put("error", "Bio is required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            if (bio.length() > 500) {
+                response.put("error", "Bio must be less than 500 characters");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            User user = userService.getUserById(id).orElse(null);
+            if (user == null) {
+                response.put("error", "User not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            user.setLastName(bio);
+            userService.updateUser(id, user);
+
+            response.put("message", "Bio updated successfully");
+            response.put("user", user);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("Failed to update bio: " + e.getMessage());
+            response.put("error", "Failed to update bio: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/{id}/profile-image")
+    public ResponseEntity<Map<String, Object>> uploadProfileImage(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            if (file.isEmpty()) {
+                response.put("error", "Please select a file to upload");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                response.put("error", "Only image files are allowed");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            if (file.getSize() > 5 * 1024 * 1024) {
+                response.put("error", "File size must not exceed 5MB");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            User user = userService.getUserById(id).orElse(null);
+            if (user == null) {
+                response.put("error", "User not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = originalFilename != null ?
+                    originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
+            String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
+            Path filePath = uploadPath.resolve(uniqueFilename);
+
+            // Save file
+            Files.copy(file.getInputStream(), filePath);
+
+            // Update user profile image URL
+            String imageUrl = "/uploads/profile-images/" + uniqueFilename;
+            user.setProfileImageUrl(imageUrl);
+            userService.updateUser(id, user);
+
+            response.put("message", "Profile image updated successfully");
+            response.put("imageUrl", imageUrl);
+            response.put("user", user);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("Failed to upload profile image: " + e.getMessage());
+            e.printStackTrace();
+            response.put("error", "Failed to upload profile image: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/check-username")
+    public ResponseEntity<Map<String, Object>> checkUsername(@RequestParam String username) {
+        Map<String, Object> response = new HashMap<>();
+        boolean isTaken = userService.isUsernameTaken(username, null);
+        response.put("available", !isTaken);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/statistics")
+    public ResponseEntity<Map<String, Object>> getUserStatistics(@PathVariable Long id) {
+        try {
+            User user = userService.getUserById(id).orElse(null);
+            if (user == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Map<String, Object> stats = new HashMap<>();
+            stats.put("createdAt", user.getCreatedAt());
+
+            // Get most searched station (from saved schedules)
+            String mostSearchedStation = "N/A";
+            List<SavedSchedule> schedules = savedScheduleRepository.findByUserId(id);
+            if (!schedules.isEmpty()) {
+                Map<String, Long> stationCounts = schedules.stream()
+                        .collect(Collectors.groupingBy(
+                                s -> s.getStation().getName(),
+                                Collectors.counting()
+                        ));
+                mostSearchedStation = stationCounts.entrySet().stream()
+                        .max(Map.Entry.comparingByValue())
+                        .map(Map.Entry::getKey)
+                        .orElse("N/A");
+            }
+            stats.put("mostSearchedStation", mostSearchedStation);
+
+            stats.put("mostSearchedDays", "Mon - Fri");
+
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
         }
     }
 }

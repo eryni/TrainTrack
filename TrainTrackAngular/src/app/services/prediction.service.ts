@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class PredictionService {
-  private apiUrl = 'http://localhost:8080/api/predict'; // Spring Boot endpoint
+  private apiUrl = 'http://localhost:8080/api/predict';
 
   constructor(private http: HttpClient) {}
 
