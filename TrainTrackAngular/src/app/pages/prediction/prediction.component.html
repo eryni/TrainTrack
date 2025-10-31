@@ -10,7 +10,8 @@
     <div class="header-actions">
       <div class="user-avatar-small" *ngIf="currentUser">
         <img *ngIf="currentUser?.profileImageUrl" 
-             [src]="'http://localhost:8080' + currentUser.profileImageUrl" 
+             [src]="'http://localhost:8080
+' + currentUser.profileImageUrl" 
              alt="Profile"
              style="width: 100%; height: 100%; object-fit: cover; display: block;">
         <div *ngIf="!currentUser?.profileImageUrl" class="avatar-placeholder-small"></div>
@@ -122,9 +123,7 @@
               [src]="historicalTrendsUrl" 
               frameborder="0" 
               allowFullScreen="true"
-              class="powerbi-iframe"
-              (load)="onIframeLoad('historical')"
-              (error)="onIframeError('historical')">
+              class="powerbi-iframe">
             </iframe>
           </div>
           
@@ -155,9 +154,7 @@
               [src]="peakHoursUrl" 
               frameborder="0" 
               allowFullScreen="true"
-              class="powerbi-iframe"
-              (load)="onIframeLoad('peak')"
-              (error)="onIframeError('peak')">
+              class="powerbi-iframe">
             </iframe>
           </div>
           
@@ -187,9 +184,7 @@
               [src]="stationComparisonUrl" 
               frameborder="0" 
               allowFullScreen="true"
-              class="powerbi-iframe"
-              (load)="onIframeLoad('comparison')"
-              (error)="onIframeError('comparison')">
+              class="powerbi-iframe">
             </iframe>
           </div>
           
