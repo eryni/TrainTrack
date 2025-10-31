@@ -53,9 +53,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  /** ✅ When user clicks a saved schedule */
   viewPredictionForSaved(s: SavedSchedule): void {
-  // 🧩 If same station is clicked again, toggle it closed
   if (this.activePrediction && this.activePrediction.station?.id === s.station?.id) {
     this.activePrediction = null;
     return;
@@ -67,10 +65,9 @@ export class DashboardComponent implements OnInit {
   this.loading = true;
   this.errorMessage = '';
 
-  // 🕒 Extract station ID
   const stationId = s.station.id;
 
-  // 🕓 Compute minutesAhead (same as PredictionComponent)
+
   const [selectedHour, selectedMinute] = s.timestamp.split(':').map(Number);
 
   const now = new Date();
@@ -79,7 +76,7 @@ export class DashboardComponent implements OnInit {
   let minutesAhead = selectedMinutes - nowMinutes;
   if (minutesAhead < 0) minutesAhead += 24 * 60;
 
-  // 🧠 Fetch prediction from same endpoint as PredictionComponent
+  
   this.http
     .get(`${this.BASE_URL}/predict?stationId=${stationId}&minutesAhead=${minutesAhead}`)
     .subscribe({
@@ -101,21 +98,21 @@ export class DashboardComponent implements OnInit {
     });
 }
 
-  /** ✅ Helper: mimic hour labels from Prediction page dropdown */
+  
  formatHourRange(timestamp: string | undefined): string {
   if (!timestamp) return '';
 
-  // Extract the hour safely (works with ISO timestamps too)
+
   const parts = timestamp.match(/T(\d{2}):(\d{2})/);
   if (!parts) return '';
 
   const hour = parseInt(parts[1], 10); // e.g. "11"
   const pad = (n: number) => n.toString().padStart(2, '0');
 
-  // Show same-hour range like "11:00 – 11:59"
+
   return `${pad(hour)}:00 – ${pad(hour)}:59`;
 }
-  /** ✅ Reuse helpers for styling */
+  
   getCongestionTextClass(level?: string): string {
     if (!level) return '';
     const lower = level.toLowerCase();
@@ -137,7 +134,7 @@ export class DashboardComponent implements OnInit {
   return level.toLowerCase().replace(/\s+/g, '-');
 }
 
-  /** ✅ Logout user */
+  
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
@@ -174,37 +171,83 @@ export class DashboardComponent implements OnInit {
   return match ? match.label : value;
 }
   
-showUsernameForm = false;
+showEmailForm = false;
 showPasswordForm = false;
-newUsername = '';
+newEmail = '';
 oldPassword = '';
 newPassword = '';
 
-toggleUsernameForm() {
-  this.showUsernameForm = !this.showUsernameForm;
+toggleEmailForm() {
+  this.showEmailForm = !this.showEmailForm;
   this.showPasswordForm = false;
 }
 
 togglePasswordForm() {
   this.showPasswordForm = !this.showPasswordForm;
-  this.showUsernameForm = false;
+  this.showEmailForm = false;
 }
 
-changeUsername() {
-  if (!this.newUsername.trim()) return alert('Please enter a new username.');
-  // Example call (replace with your UserService when connected to API)
-  console.log('Username changed to:', this.newUsername);
-  alert('Username updated successfully!');
-  this.showUsernameForm = false;
+changeEmail() {
+  if (!this.newEmail.trim()) {
+    alert('Please enter a new Email.');
+    return;
+  }
+
+  if (!this.currentUser) {
+    alert('You must be logged in.');
+    return;
+  }
+
+  console.log('🧠 Current user object:', this.currentUser);
+
+  const userId = (this.currentUser as any).userId;
+
+  this.http.put(`${this.BASE_URL}/users/${userId}/change-email`, { newEmail: this.newEmail })
+    .subscribe({
+      next: () => {
+        alert('Email updated successfully!');
+        this.showEmailForm = false;
+        // wip update local user object ?
+        if (this.currentUser) this.currentUser.email = this.newEmail;
+        this.newEmail = '';
+      },
+      error: (err) => {
+        console.error('❌ Email update failed:', err);
+        alert(err.error?.message || 'Failed to update email.');
+      }
+    });
+    console.log('User ID used in changeEmail:', this.currentUser);
+    console.log('🧠 User ID in changeEmail:', this.currentUser);
 }
 
 changePassword() {
-  if (!this.oldPassword || !this.newPassword)
-    return alert('Please fill all password fields.');
-  // Example call (replace with your UserService when backend is ready)
-  console.log('Password updated:', this.newPassword);
-  alert('Password updated successfully!');
-  this.showPasswordForm = false;
+  if (!this.oldPassword || !this.newPassword) {
+    alert('Please fill all password fields.');
+    return;
+  }
+
+  if (!this.currentUser) {
+    alert('You must be logged in.');
+    return;
+  }
+
+  const userId = (this.currentUser as any).id || (this.currentUser as any).userId;
+
+  this.http.put(`${this.BASE_URL}/users/${userId}/change-password`, {
+    currentPassword: this.oldPassword,
+    newPassword: this.newPassword
+  }).subscribe({
+    next: () => {
+      alert('Password changed successfully!');
+      this.showPasswordForm = false;
+      this.oldPassword = '';
+      this.newPassword = '';
+    },
+    error: (err) => {
+      console.error('❌ Password change failed:', err);
+      alert(err.error?.message || 'Failed to change password.');
+    }
+  });
 }
 
 }

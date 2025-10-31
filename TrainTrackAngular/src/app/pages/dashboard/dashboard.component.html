@@ -39,15 +39,15 @@
         <div class="panel account-panel">
           <h3>Account</h3>
           <div class="row">
-            <!-- CHANGE USERNAME -->
+            <!-- CHANGE Email -->
             <div class="account-action">
-              <button class="btn-mini" (click)="toggleUsernameForm()">
-                {{ showUsernameForm ? 'Cancel' : 'Change username' }}
+              <button class="btn-mini" (click)="toggleEmailForm()">
+                {{ showEmailForm ? 'Cancel' : 'Change email' }}
               </button>
 
-              <div *ngIf="showUsernameForm" class="form-box">
-                <input type="text" [(ngModel)]="newUsername" placeholder="Enter new username" />
-                <button class="btn-submit" (click)="changeUsername()">Save</button>
+              <div *ngIf="showEmailForm" class="form-box">
+                <input type="text" [(ngModel)]="newEmail" placeholder="Enter new email" />
+                <button class="btn-submit" (click)="changeEmail()">Save</button>
               </div>
             </div>
 
@@ -87,7 +87,7 @@
               }"
               (click)="viewPredictionForSaved(s)"
             >
-              {{ s.station?.name || 'Unknown Station' }} — {{ getSelectedHourLabel(s.timestamp) }}
+              {{ s.station.name || 'Unknown Station' }} — {{ getSelectedHourLabel(s.timestamp) }}
             </li>
           </ul>
 
