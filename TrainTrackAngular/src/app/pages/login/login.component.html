@@ -1,0 +1,59 @@
+<div class="auth-page">
+  <div class="auth-container">
+    <div class="logo">
+      <span class="logo-icon">tr</span>
+      <span class="logo-train">▲</span>
+      <span class="logo-text">inTrack</span>
+    </div>
+
+    <div class="auth-card">
+      <h1>Login</h1>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="input-group">
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            placeholder="Email"
+            [class.error-input]="submitted && f['email'].errors"
+          />
+        </div>
+        <div *ngIf="submitted && f['email'].errors" class="error-message">
+          <span *ngIf="f['email'].errors['required']">Email is required</span>
+          <span *ngIf="f['email'].errors['email']">Invalid email format</span>
+        </div>
+
+        <div class="input-group">
+          <input
+            type="password"
+            id="password"
+            formControlName="password"
+            placeholder="Password"
+            [class.error-input]="submitted && f['password'].errors"
+          />
+        </div>
+        <div *ngIf="submitted && f['password'].errors" class="error-message">
+          <span *ngIf="f['password'].errors['required']">Password is required</span>
+        </div>
+
+        <div *ngIf="error" class="alert-error">
+          {{ error }}
+        </div>
+
+        <button type="submit" class="btn-gradient" [disabled]="loading">
+          {{ loading ? 'Logging in...' : 'Login' }}
+        </button>
+
+        <div class="forgot-password">
+          <a routerLink="/forgot-password">Forgot password?</a>
+        </div>
+
+        <div class="footer-link">
+          Don't have an account? 
+          <a routerLink="/register" class="link-primary">Sign up</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

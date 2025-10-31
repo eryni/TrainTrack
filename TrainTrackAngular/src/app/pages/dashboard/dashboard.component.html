@@ -1,0 +1,266 @@
+<div class="prediction-container">
+  <!-- HEADER -->
+  <header class="top-bar">
+    <div class="logo" routerLink="/prediction" style="cursor: pointer;">
+      <span class="logo-icon">tr</span>
+      <span class="logo-train">▲</span>
+      <span class="logo-text">inTrack</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="user-avatar-small" *ngIf="currentUser">
+        <img *ngIf="currentUser?.profileImageUrl" 
+             [src]="'http://localhost:8080' + currentUser.profileImageUrl" 
+             alt="Profile"
+             style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <div *ngIf="!currentUser?.profileImageUrl" class="avatar-placeholder-small"></div>
+      </div>
+      <span class="username-text" *ngIf="currentUser">
+        {{ currentUser.firstName }}
+      </span>
+      <button class="btn-logout" (click)="logout()" *ngIf="currentUser">
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <!-- USER INFO -->
+  <section class="user-section">
+    <div class="avatar-placeholder">
+      <img *ngIf="currentUser?.profileImageUrl" 
+           [src]="'http://localhost:8080' + currentUser?.profileImageUrl" 
+           alt="Profile"
+           style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      <div *ngIf="!currentUser?.profileImageUrl" 
+           style="width: 100%; height: 100%; background: linear-gradient(135deg, #bb86fc, #e94560); border-radius: 50%;"></div>
+    </div>
+    <div class="user-info">
+      <h2>{{ currentUser?.firstName || 'User' }}</h2>
+      <p><em>{{ currentUser?.lastName || 'User tagline for fun' }}</em></p>
+    </div>
+    <div class="datetime">
+      <p>{{ currentDateTime.date }}</p>
+      <p>PHT {{ currentDateTime.time }}</p>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <section class="panel center-panel">
+      <div class="dashboard-content">
+
+        <!-- ACCOUNT PANEL -->
+        <div class="panel account-panel">
+          <h3>Account</h3>
+          <div class="row">
+
+            <!-- CHANGE USERNAME -->
+            <div class="account-action">
+              <button class="btn-mini" (click)="toggleUsernameForm()">
+                {{ showUsernameForm ? 'Cancel' : 'Change username' }}
+              </button>
+
+              <div *ngIf="showUsernameForm" class="form-box">
+                <input 
+                  type="text" 
+                  [(ngModel)]="newUsername" 
+                  (input)="onUsernameInput()"
+                  placeholder="Enter new username" 
+                />
+                <div *ngIf="checkingUsername" class="checking-text">Checking availability...</div>
+                <button class="btn-submit" (click)="changeUsername()" [disabled]="checkingUsername || usernameError">Save</button>
+                <div *ngIf="usernameError" class="inline-error">{{ usernameError }}</div>
+                <div *ngIf="usernameSuccess" class="inline-success">{{ usernameSuccess }}</div>
+              </div>
+            </div>
+
+            <!-- CHANGE PASSWORD -->
+            <div class="account-action">
+              <button class="btn-mini" (click)="togglePasswordForm()">
+                {{ showPasswordForm ? 'Cancel' : 'Change password' }}
+              </button>
+
+              <div *ngIf="showPasswordForm" class="form-box">
+                <input type="password" [(ngModel)]="oldPassword" placeholder="Current password" />
+                <input type="password" [(ngModel)]="newPassword" placeholder="New password" />
+                <button class="btn-submit" (click)="changePassword()">Update</button>
+                <div *ngIf="passwordError" class="inline-error">{{ passwordError }}</div>
+                <div *ngIf="passwordSuccess" class="inline-success">{{ passwordSuccess }}</div>
+              </div>
+            </div>
+
+          </div>
+
+          <h3>Profile</h3>
+          <button class="btn-mini" (click)="toggleImageUpload()">
+            {{ showImageUpload ? 'Cancel' : 'Upload image' }}
+          </button>
+
+          <div *ngIf="showImageUpload" class="form-box" style="margin-top: 1rem;">
+            <input 
+              type="file" 
+              accept="image/*"
+              (change)="onFileSelected($event)"
+              style="margin-bottom: 0.5rem;"
+            />
+            <div *ngIf="imagePreview" class="image-preview">
+              <img [src]="imagePreview" alt="Preview" style="max-width: 200px; border-radius: 8px;">
+            </div>
+            <button class="btn-submit" (click)="uploadProfileImage()" [disabled]="!selectedFile">Upload</button>
+            <div *ngIf="imageError" class="inline-error">{{ imageError }}</div>
+            <div *ngIf="imageSuccess" class="inline-success">{{ imageSuccess }}</div>
+          </div>
+
+          <div class="upload-box" *ngIf="!showImageUpload">
+            <div class="avatar-small">
+              <img *ngIf="currentUser?.profileImageUrl" 
+                   [src]="'http://localhost:8080' + currentUser?.profileImageUrl" 
+                   alt="Profile"
+                   style="width: 100%; height: 100%; object-fit: cover;">
+              <div *ngIf="!currentUser?.profileImageUrl" 
+                   style="width: 100%; height: 100%; background: linear-gradient(135deg, #bb86fc, #e94560); border-radius: 50%;"></div>
+            </div>
+            <p>{{ currentUser?.firstName || 'User00' }}</p>
+          </div>
+          
+          <button class="btn-mini" (click)="toggleBioForm()">
+            {{ showBioForm ? 'Cancel' : 'Edit bio' }}
+          </button>
+          
+          <div *ngIf="showBioForm" class="form-box">
+            <textarea 
+              [(ngModel)]="newBio" 
+              placeholder="User tagline for fun"
+              rows="3"
+              maxlength="500"
+            ></textarea>
+            <button class="btn-submit" (click)="updateBio()">Save Bio</button>
+            <div *ngIf="bioError" class="inline-error">{{ bioError }}</div>
+            <div *ngIf="bioSuccess" class="inline-success">{{ bioSuccess }}</div>
+          </div>
+
+          <div *ngIf="!showBioForm">
+            <textarea 
+              [value]="currentUser?.lastName || 'User tagline for fun'" 
+              disabled
+              placeholder="User tagline for fun"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- SAVED SCHEDULES -->
+        <div class="panel schedule-panel" *ngIf="savedSchedules.length > 0">
+          <h3>Saved Schedules</h3>
+          <ul>
+            <li
+              *ngFor="let s of savedSchedules"
+              [ngClass]="{
+                'alert': s.congestionLevel === 'Very Heavy' || s.congestionLevel === 'Heavy',
+                'selected': activePrediction && activePrediction.station.id === s.station.id
+              }"
+            >
+              <div class="schedule-info" (click)="viewPredictionForSaved(s)">
+                {{ s.station.name || 'Unknown Station' }} — {{ getSelectedHourLabel(s.timestamp) }}
+              </div>
+              <button class="btn-remove" (click)="deleteSchedule(s.id, $event)" title="Remove">
+                <i class="material-icons">close</i>
+              </button>
+            </li>
+          </ul>
+
+          <!-- Dashboard Prediction Card -->
+          <div *ngIf="activePrediction && !loading && !errorMessage" class="modern-prediction">
+            <div class="circle" [ngClass]="getCongestionClass(activePrediction.congestionLevel)">
+              <div class="percent">{{ activePrediction.predictedRidership | number }}</div>
+              <div class="label">{{ activePrediction.congestionLevel }}</div>
+            </div>
+
+            <div class="status-right">
+              <div class="status-box" [ngClass]="getCongestionTextClass(activePrediction.congestionLevel)">
+                <div class="main-status">{{ getCongestionStatus(activePrediction.congestionLevel) }}</div>
+                <div class="sub-status">
+                  {{ activePrediction.congestionLevel?.toUpperCase().includes('HEAVY') ? 'RUSH HOUR' : 'LOW TRAFFIC' }}
+                </div>
+              </div>
+
+              <div class="detail-info">
+                <p><b class="highlight">Station:</b> {{ activePrediction.station?.name }}</p>
+                <p><b class="highlight">Confidence:</b> {{ activePrediction.confidence | percent:'1.0-0' }}</p>
+              </div>
+
+              <div class="density-section" *ngIf="activePrediction?.lowDensityPeriods">
+                <p class="density-title">Lowest Passenger Density</p>
+                <div class="density-times">
+                  <span *ngFor="let period of activePrediction.lowDensityPeriods">{{ period }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="loading" class="loading">Loading prediction...</div>
+          <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+        </div>
+
+        <!-- REPORTED ISSUES PANEL -->
+        <div class="panel reports-panel">
+          <h3>My Reports</h3>
+          
+          <div *ngIf="userReports.length === 0" class="no-reports">
+            <p>You haven't submitted any reports yet.</p>
+            <a routerLink="/report-problem" class="link-primary">Submit a report</a>
+          </div>
+
+          <ul *ngIf="userReports.length > 0" class="reports-list">
+            <li *ngFor="let report of userReports" class="report-item">
+              <div class="report-header">
+                <h4>{{ report.title }}</h4>
+                <span class="report-status" [ngClass]="getReportStatusClass(report.status || 'pending')">
+                  {{ report.status || 'pending' }}
+                </span>
+              </div>
+              <p class="report-description">{{ report.description }}</p>
+              <div class="report-meta">
+                <span class="report-date">{{ report.reportedAt | date:'MM/dd/yyyy HH:mm' }}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- SUMMARY PANEL -->
+        <div class="panel summary-panel">
+          <h3>Account Created</h3>
+          <p>{{ currentUser?.createdAt | date:'MM-dd-yyyy' }}</p>
+          <p>PHT {{ currentUser?.createdAt | date:'HH:mm:ss a' }}</p>
+
+          <h3>Most Searched Station</h3>
+          <p>{{ userStatistics.mostSearchedStation }}</p>
+
+          <h3>Most Searched Days</h3>
+          <p>{{ userStatistics.mostSearchedDays }}</p>
+
+          <h3>Website's Repository</h3>
+          <p><a href="https://github.com/eryni/TrainTrack" target="_blank" rel="noopener">GitHub</a></p>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button routerLink="/prediction" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="icon material-icons">timeline</i>
+      <span>Prediction</span>
+    </button>
+
+    <button routerLink="/dashboard" routerLinkActive="active">
+      <i class="icon material-icons">dashboard</i>
+      <span>Dashboard</span>
+    </button>
+
+    <button routerLink="/report-problem" routerLinkActive="active">
+      <i class="icon material-icons">report</i>
+      <span>Report</span>
+    </button>
+  </nav>
+</div>
